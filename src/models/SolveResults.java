@@ -2,7 +2,7 @@ package models;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.ArrayList; // Asegúrate de que esta importación esté presente
+import java.util.ArrayList;
 
 public class SolveResults implements Serializable {
     private static final long serialVersionUID = 1L; // Recomendado para Serializable
@@ -10,22 +10,22 @@ public class SolveResults implements Serializable {
     private List<Cell> path;
     private long timeTakenMillis;
     private boolean solved;
-    private Exception exception; // ¡NUEVO CAMPO! Para capturar errores
+    private Exception exception; // Para capturar errores en la resolución
 
     // Constructor para resultados exitosos
     public SolveResults(List<Cell> path, long timeTakenMillis, boolean solved) {
-        this.path = path;
+        this.path = path != null ? path : new ArrayList<>();
         this.timeTakenMillis = timeTakenMillis;
         this.solved = solved;
-        this.exception = null; // No hay excepción en un resultado exitoso
+        this.exception = null;
     }
 
     // Constructor para resultados con error (por ejemplo, si doInBackground falla)
     public SolveResults(Exception exception, long timeTakenMillis) {
-        this.path = new ArrayList<>(); // Vacío o null, dependiendo de cómo quieras manejarlo
-        this.timeTakenMillis = timeTakenMillis; // El tiempo hasta que falló
-        this.solved = false; // No resuelto debido a la excepción
-        this.exception = exception; // Guarda la excepción
+        this.path = new ArrayList<>(); // Lista vacía si hubo error
+        this.timeTakenMillis = timeTakenMillis;
+        this.solved = false;
+        this.exception = exception;
     }
 
     // Getters
@@ -41,17 +41,17 @@ public class SolveResults implements Serializable {
         return solved;
     }
 
-    public Exception getException() { // ¡NUEVO MÉTODO!
+    public Exception getException() {
         return exception;
     }
 
     @Override
     public String toString() {
         return "SolveResults{" +
-               "pathLength=" + (path != null ? path.size() : 0) +
-               ", timeTakenMillis=" + timeTakenMillis +
-               ", solved=" + solved +
-               ", exception=" + (exception != null ? exception.getMessage() : "none") +
-               '}';
+                "pathLength=" + (path != null ? path.size() : 0) +
+                ", timeTakenMillis=" + timeTakenMillis +
+                ", solved=" + solved +
+                ", exception=" + (exception != null ? exception.getMessage() : "none") +
+                '}';
     }
 }

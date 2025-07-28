@@ -5,228 +5,183 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class MazeFrame extends JFrame {
+
     private MazePanel mazePanel;
-    private JComboBox<String> algorithmSelector;
-    private JSpinner numRowsSpinner; 
-    private JSpinner numColsSpinner; 
-    private JButton generateMazeButton;
-    private JButton solveMazeButton; 
-    private JButton visualizeStepByStepButton; 
-    private JButton clearResultsButton;
-    private JButton viewResultsButton;
-    private JLabel statusLabel;
-    private JSlider speedSlider; 
+    private JButton btnGenerateMaze;
+    private JButton btnSolveMaze;
+    private JButton btnVisualizeStepByStep;
+    private JButton btnClearResults;
+    private JButton btnViewResults;
 
-    private JToggleButton startModeButton;
-    private JToggleButton endModeButton;
-    private JToggleButton wallModeButton;
-    private JToggleButton eraseModeButton;
+    private JButton btnStartMode;
+    private JButton btnEndMode;
+    private JButton btnWallMode;
+    private JButton btnEraseMode;
 
-    private ButtonGroup editModeGroup;
+    private JComboBox<String> cmbAlgorithms;
+    private JLabel lblStatus;
+    private JSpinner spinnerRows;
+    private JSpinner spinnerCols;
+    private JSpinner spinnerDelay;
 
-    public MazeFrame(String title) {
-        super(title);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public enum EditMode { NONE, START, END, WALL, ERASE }
+
+    public MazeFrame() {
+        setTitle("Maze Solver");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        initComponents();
-        addComponentsToFrame();
-        pack();
-        setLocationRelativeTo(null);
-    }
+        // Maze panel default size 20x20
+        mazePanel = new MazePanel(20, 20);
 
-    private void initComponents() {
-        mazePanel = new MazePanel(20, 20); 
+        JPanel controlsPanel = new JPanel();
+        controlsPanel.setLayout(new GridLayout(3, 1));
 
-        // Asegúrate de que los nombres aquí coincidan con los que pones en MazeController.initializeSolvers()
-        String[] algorithms = {
+        // Panel botones de generación y resolución
+        JPanel topControls = new JPanel();
+        btnGenerateMaze = new JButton("Generar Laberinto");
+        btnSolveMaze = new JButton("Resolver Rápido");
+        btnVisualizeStepByStep = new JButton("Visualizar Paso a Paso");
+        btnClearResults = new JButton("Limpiar Resultados");
+        btnViewResults = new JButton("Ver Resultados");
+        topControls.add(btnGenerateMaze);
+        topControls.add(btnSolveMaze);
+        topControls.add(btnVisualizeStepByStep);
+        topControls.add(btnClearResults);
+        topControls.add(btnViewResults);
+
+        // Panel de modos de edición
+        JPanel editModePanel = new JPanel();
+        btnStartMode = new JButton("Colocar Inicio");
+        btnEndMode = new JButton("Colocar Fin");
+        btnWallMode = new JButton("Colocar Muros");
+        btnEraseMode = new JButton("Borrar");
+        editModePanel.add(btnStartMode);
+        editModePanel.add(btnEndMode);
+        editModePanel.add(btnWallMode);
+        editModePanel.add(btnEraseMode);
+
+        // Panel configuración y selección algoritmo
+        JPanel bottomControls = new JPanel();
+        bottomControls.add(new JLabel("Filas:"));
+        spinnerRows = new JSpinner(new SpinnerNumberModel(20, 5, 100, 1));
+        bottomControls.add(spinnerRows);
+
+        bottomControls.add(new JLabel("Columnas:"));
+        spinnerCols = new JSpinner(new SpinnerNumberModel(20, 5, 100, 1));
+        bottomControls.add(spinnerCols);
+
+        bottomControls.add(new JLabel("Retraso Visualización (ms):"));
+        spinnerDelay = new JSpinner(new SpinnerNumberModel(100, 0, 2000, 50));
+        bottomControls.add(spinnerDelay);
+
+        bottomControls.add(new JLabel("Algoritmo:"));
+        cmbAlgorithms = new JComboBox<>(new String[] {
             "MazeSolverBFS",
             "MazeSolverDFS",
             "MazeSolverRecursivo",
-            "MazeSolverDFSCompleto"
-            // Si NO quieres usar MazeSolverRecursivoCompletoBT, asegúrate de que no esté aquí:
-            // "MazeSolverRecursivoCompletoBT" 
-        };
-        algorithmSelector = new JComboBox<>(algorithms);
+            "MazeSolverDFSCompleto",
+            "MazeSolverRecursivoCompleto",
+            "MazeSolverRecursivoCompletoBT"
+        });
+        bottomControls.add(cmbAlgorithms);
 
-        SpinnerModel rowsSpinnerModel = new SpinnerNumberModel(20, 5, 50, 1);
-        numRowsSpinner = new JSpinner(rowsSpinnerModel);
+        // Panel para status
+        lblStatus = new JLabel("Estado: Listo");
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusPanel.add(lblStatus, BorderLayout.CENTER);
 
-        SpinnerModel colsSpinnerModel = new SpinnerNumberModel(20, 5, 50, 1);
-        numColsSpinner = new JSpinner(colsSpinnerModel);
+        // Agregar paneles a controles
+        controlsPanel.add(topControls);
+        controlsPanel.add(editModePanel);
+        controlsPanel.add(bottomControls);
 
-        generateMazeButton = new JButton("Generar Laberinto");
-        solveMazeButton = new JButton("Resolver Laberinto (Rápido)"); 
-        visualizeStepByStepButton = new JButton("Visualizar Paso a Paso"); 
-        clearResultsButton = new JButton("Limpiar Resultados");
-        viewResultsButton = new JButton("Ver Resultados");
+        add(mazePanel, BorderLayout.CENTER);
+        add(controlsPanel, BorderLayout.NORTH);
+        add(statusPanel, BorderLayout.SOUTH);
 
-        statusLabel = new JLabel("Listo.");
-        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
-        startModeButton = new JToggleButton("Inicio");
-        endModeButton = new JToggleButton("Fin");
-        wallModeButton = new JToggleButton("Bloqueo");
-        eraseModeButton = new JToggleButton("Borrar"); 
-
-        editModeGroup = new ButtonGroup();
-        editModeGroup.add(startModeButton);
-        editModeGroup.add(endModeButton);
-        editModeGroup.add(wallModeButton);
-        editModeGroup.add(eraseModeButton); 
-
-        speedSlider = new JSlider(JSlider.HORIZONTAL, 0, 500, 50); 
-        speedSlider.setMajorTickSpacing(100);
-        speedSlider.setMinorTickSpacing(10);
-        speedSlider.setPaintTicks(true);
-        speedSlider.setPaintLabels(true);
-        speedSlider.setInverted(true); 
-        speedSlider.setBorder(BorderFactory.createTitledBorder("Velocidad (ms de retraso)"));
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
-    private void addComponentsToFrame() {
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        controlPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        controlPanel.add(new JLabel("Filas:"));
-        controlPanel.add(numRowsSpinner);
-        controlPanel.add(new JLabel("Columnas:")); 
-        controlPanel.add(numColsSpinner); 
-        
-        controlPanel.add(generateMazeButton);
-        controlPanel.add(new JLabel("Algoritmo:"));
-        controlPanel.add(algorithmSelector);
-        
-        controlPanel.add(solveMazeButton); 
-        controlPanel.add(visualizeStepByStepButton); 
-        
-        controlPanel.add(clearResultsButton);
-        controlPanel.add(viewResultsButton);
-
-        JPanel editModePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        editModePanel.setBorder(BorderFactory.createTitledBorder("Modo Edición (Clic Izquierdo)"));
-        editModePanel.add(startModeButton);
-        editModePanel.add(endModeButton);
-        editModePanel.add(wallModeButton);
-        editModePanel.add(eraseModeButton); 
-
-        JPanel speedPanel = new JPanel(new BorderLayout());
-        speedPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        speedPanel.add(speedSlider, BorderLayout.CENTER);
-
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(controlPanel, BorderLayout.NORTH);
-        topPanel.add(editModePanel, BorderLayout.CENTER);
-        topPanel.add(speedPanel, BorderLayout.SOUTH); 
-
-        add(topPanel, BorderLayout.NORTH);
-
-        JScrollPane scrollPane = new JScrollPane(mazePanel);
-        add(scrollPane, BorderLayout.CENTER);
-
-        add(statusLabel, BorderLayout.SOUTH);
-    }
+    // Getters para que el controlador acceda
 
     public MazePanel getMazePanel() {
         return mazePanel;
     }
 
+    public int getNumRows() {
+        return (int) spinnerRows.getValue();
+    }
+
+    public int getNumCols() {
+        return (int) spinnerCols.getValue();
+    }
+
+    public int getVisualizationDelay() {
+        return (int) spinnerDelay.getValue();
+    }
+
     public String getSelectedAlgorithm() {
-        return (String) algorithmSelector.getSelectedItem();
+        return (String) cmbAlgorithms.getSelectedItem();
     }
 
-    public int getNumRows() { 
-        return (Integer) numRowsSpinner.getValue();
-    }
-
-    public int getNumCols() { 
-        return (Integer) numColsSpinner.getValue();
-    }
-
-    public int getVisualizationDelay() { 
-        return speedSlider.getValue();
-    }
+    // Setters para listeners, que el controlador usará
 
     public void setGenerateMazeButtonListener(ActionListener listener) {
-        generateMazeButton.addActionListener(listener);
+        btnGenerateMaze.addActionListener(listener);
     }
 
     public void setSolveMazeButtonListener(ActionListener listener) {
-        solveMazeButton.addActionListener(listener);
+        btnSolveMaze.addActionListener(listener);
     }
-    
+
     public void setVisualizeStepByStepButtonListener(ActionListener listener) {
-        visualizeStepByStepButton.addActionListener(listener);
+        btnVisualizeStepByStep.addActionListener(listener);
     }
 
     public void setClearResultsButtonListener(ActionListener listener) {
-        clearResultsButton.addActionListener(listener);
+        btnClearResults.addActionListener(listener);
     }
 
     public void setViewResultsButtonListener(ActionListener listener) {
-        viewResultsButton.addActionListener(listener);
+        btnViewResults.addActionListener(listener);
     }
 
     public void setStartModeButtonListener(ActionListener listener) {
-        startModeButton.addActionListener(listener);
+        btnStartMode.addActionListener(listener);
     }
 
     public void setEndModeButtonListener(ActionListener listener) {
-        endModeButton.addActionListener(listener);
+        btnEndMode.addActionListener(listener);
     }
 
     public void setWallModeButtonListener(ActionListener listener) {
-        wallModeButton.addActionListener(listener);
+        btnWallMode.addActionListener(listener);
     }
 
     public void setEraseModeButtonListener(ActionListener listener) {
-        eraseModeButton.addActionListener(listener);
-    }
-
-    public void updateStatus(String message) {
-        statusLabel.setText(message);
-    }
-    
-    public void showMessage(String message, String title) {
-        JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public int showMessage(String message, String title, int messageType) {
-        return JOptionPane.showConfirmDialog(this, message, title, messageType);
+        btnEraseMode.addActionListener(listener);
     }
 
     public void setButtonsEnabled(boolean enabled) {
-        generateMazeButton.setEnabled(enabled);
-        solveMazeButton.setEnabled(enabled);
-        visualizeStepByStepButton.setEnabled(enabled); 
-        clearResultsButton.setEnabled(enabled);
-        viewResultsButton.setEnabled(enabled);
-        algorithmSelector.setEnabled(enabled);
-        numRowsSpinner.setEnabled(enabled);
-        numColsSpinner.setEnabled(enabled);
-        
-        startModeButton.setEnabled(enabled);
-        endModeButton.setEnabled(enabled);
-        wallModeButton.setEnabled(enabled);
-        eraseModeButton.setEnabled(enabled);
-        speedSlider.setEnabled(enabled); 
+        btnGenerateMaze.setEnabled(enabled);
+        btnSolveMaze.setEnabled(enabled);
+        btnVisualizeStepByStep.setEnabled(enabled);
+        btnClearResults.setEnabled(enabled);
+        btnViewResults.setEnabled(enabled);
+        btnStartMode.setEnabled(enabled);
+        btnEndMode.setEnabled(enabled);
+        btnWallMode.setEnabled(enabled);
+        btnEraseMode.setEnabled(enabled);
     }
 
-    public EditMode getSelectedEditMode() {
-        if (startModeButton.isSelected()) {
-            return EditMode.START;
-        } else if (endModeButton.isSelected()) {
-            return EditMode.END;
-        } else if (wallModeButton.isSelected()) {
-            return EditMode.WALL;
-        } else if (eraseModeButton.isSelected()) {
-            return EditMode.ERASE;
-        }
-        return EditMode.NONE;
+    public void updateStatus(String message) {
+        lblStatus.setText("Estado: " + message);
     }
 
-    public enum EditMode {
-        START, END, WALL, ERASE, NONE
+    public void showMessage(String message, String title, int messageType) {
+        JOptionPane.showMessageDialog(this, message, title, messageType);
     }
 }

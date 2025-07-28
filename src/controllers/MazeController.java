@@ -14,6 +14,8 @@ import solver.ProgressPublisher;
 import solver.solverImpl.MazeSolverBFS;
 import solver.solverImpl.MazeSolverDFS;
 import solver.solverImpl.MazeSolverRecursivo;
+import solver.solverImpl.MazeSolverRecursivoCompleto;
+import solver.solverImpl.MazeSolverRecursivoCompletoBT;
 import solver.solverImpl.MazeSolverDFSCompleto;
 // Si NO quieres usar MazeSolverRecursivoCompletoBT, esta línea debe estar comentada o eliminada:
 // import solver.solverImpl.MazeSolverRecursivoCompletoBT;
@@ -52,6 +54,9 @@ public class MazeController implements MazePanel.MazePanelClickListener {
         solvers.put("MazeSolverDFS", new MazeSolverDFS());
         solvers.put("MazeSolverRecursivo", new MazeSolverRecursivo());
         solvers.put("MazeSolverDFSCompleto", new MazeSolverDFSCompleto());
+        solvers.put("MazeSolverRecursivoCompleto", new MazeSolverRecursivoCompleto());
+        solvers.put("MazeSolverRecursivoCompletoBT", new MazeSolverRecursivoCompletoBT());
+
         // solvers.put("MazeSolverRecursivoCompletoBT", new MazeSolverRecursivoCompletoBT());
     }
 

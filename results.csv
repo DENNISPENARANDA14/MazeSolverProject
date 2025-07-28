@@ -1,3 +1,8 @@
 BFS,5,0,48
 DFS Recursivo (4 Dir),15,2,48
 DFS Recursivo (2 Dir),5,0,48
+MazeSolverBFS,9,0,25
+MazeSolverDFS,11,1,25
+MazeSolverRecursivo,11,0,25
+MazeSolverRecursivoCompleto,10,0,25
+MazeSolverRecursivoCompletoBT,11,0,25

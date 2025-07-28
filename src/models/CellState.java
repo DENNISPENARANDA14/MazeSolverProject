@@ -1,10 +1,10 @@
 package models;
 
 public enum CellState {
-    PATH,
     WALL,
+    PATH,
     START,
     END,
     VISITED,
-    SOLUTION
+    SOLUTION;
 }
