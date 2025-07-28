@@ -1,18 +1,83 @@
-## Getting Started
+![Logo Ups](logoupscolor.svg)
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
 
-## Folder Structure
+# Solución de Laberintos con Algoritmos de Búsqueda
 
-The workspace contains two folders by default, where:
+## Integrantes
+> * Jose Avecillas
+> * Mateo Namicela 
+> * Dennis Peñaranda
+> * Alexander Beltrán
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+---
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+## 1. Descripción del Problema
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+Este proyecto aborda el problema clásico de encontrar una ruta desde un punto de inicio hasta una salida dentro de un laberinto. La solución debe considerar diferentes estrategias algorítmicas que optimicen la eficiencia del recorrido en función del tipo de laberinto y la lógica de exploración.
 
-## Dependency Management
+---
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+## 2. Propuesta de Solución
+
+### Marco Teórico
+
+Se implementaron los siguientes algoritmos de búsqueda y resolución de laberintos:
+
+- **BFS (Breadth-First Search)** – `(MazeSolverBFS.java)`  
+  Recorre el laberinto nivel por nivel (en amplitud). Garantiza encontrar el camino más corto en grafos no ponderados.
+
+- **DFS (Depth-First Search)** – `(MazeSolverDFS.java)`  
+  Explora profundamente cada posible camino antes de retroceder. Puede no encontrar el camino más corto.
+
+- **DFS Completo** – `(MazeSolverDFSCompleto.java)`  
+  Variante que explora todas las rutas posibles, útil para comparar caminos y tiempos.
+
+- **Recursión simple** – `(MazeSolverRecursivo.java)`  
+  Utiliza llamadas recursivas para explorar el laberinto desde el punto de inicio hasta una posible salida.
+
+- **Recursión completa** – `(MazeSolverRecursivoCompleto.java)`  
+  Variante recursiva que analiza todas las posibles soluciones, no se detiene en la primera.
+
+- **Backtracking Recursivo** – `(MazeSolverRecursivoCompletoBT.java)`  
+  Basado en DFS con retroceso, deshace movimientos inválidos para buscar rutas alternativas de forma recursiva y controlada.
+
+
+### Tecnologías Utilizadas
+
+- **Lenguaje:** Java
+- **IDE recomendado:** IntelliJ IDEA / NetBeans
+- **Framework GUI:** Swing
+- **Manejo de datos:** Almacenamiento en archivos con DAO
+
+### Diagrama UML
+
+
+
+### Capturas de la Interfaz
+
+Se muestran a continuación capturas que reflejan el funcionamiento del sistema en dos laberintos distintos utilizando diferentes algoritmos:
+
+- Laberinto 1: Maze Solver BFS
+    ![MazeSolverBFS](MazeSolverBFS.png)
+- Laberinto 2: Maze Solver Recursivo
+    ![MazeSolverRecursivo](MazeSolverRecursivo.png)
+
+
+### Código Ejemplo
+
+A continuación se muestra una sección del algoritmo `MazeSolverRecursivoCompletoBT.java`:
+
+```java
+public boolean solveMaze(int row, int col) {
+    if (!isValidMove(row, col)) return false;
+    if (isExit(row, col)) return true;
+
+    maze[row][col] = VISITED;
+
+    for (Direction d : Direction.values()) {
+        if (solveMaze(row + d.dx, col + d.dy)) return true;
+    }
+
+    maze[row][col] = UNVISITED; // backtrack
+    return false;
+}
