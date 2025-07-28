@@ -11,7 +11,7 @@ public class MazeFrame extends JFrame {
     private JButton btnSolveMaze;
     private JButton btnClearResults;
     private JButton btnViewResults;
-    private JButton btnGuardar; 
+    private JButton btnGuardar;
 
     private JButton btnStartMode;
     private JButton btnEndMode;
@@ -24,6 +24,8 @@ public class MazeFrame extends JFrame {
     private JSpinner spinnerCols;
     private JSpinner spinnerDelay;
 
+    private JButton btnAyuda; // <-- botón de ayuda
+
     public enum EditMode { NONE, START, END, WALL, ERASE }
 
     public MazeFrame() {
@@ -31,7 +33,6 @@ public class MazeFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        
         mazePanel = new MazePanel(20, 20);
 
         JPanel controlsPanel = new JPanel();
@@ -42,24 +43,24 @@ public class MazeFrame extends JFrame {
         btnSolveMaze = new JButton("Resolver Rápido");
         btnClearResults = new JButton("Limpiar Resultados");
         btnViewResults = new JButton("Ver Resultados");
-        btnGuardar = new JButton("Guardar Resultados"); 
+        btnGuardar = new JButton("Guardar Resultados");
 
         topControls.add(btnGenerateMaze);
         topControls.add(btnSolveMaze);
         topControls.add(btnClearResults);
         topControls.add(btnViewResults);
-        topControls.add(btnGuardar); 
+        topControls.add(btnGuardar);
 
         JPanel editModePanel = new JPanel();
         btnStartMode = new JButton("Colocar Inicio");
         btnEndMode = new JButton("Colocar Fin");
         btnWallMode = new JButton("Colocar Muros");
         btnEraseMode = new JButton("Borrar");
+
         editModePanel.add(btnStartMode);
         editModePanel.add(btnEndMode);
         editModePanel.add(btnWallMode);
         editModePanel.add(btnEraseMode);
-        
 
         JPanel bottomControls = new JPanel();
         bottomControls.add(new JLabel("Filas:"));
@@ -75,7 +76,7 @@ public class MazeFrame extends JFrame {
         bottomControls.add(spinnerDelay);
 
         bottomControls.add(new JLabel("Algoritmo:"));
-        cmbAlgorithms = new JComboBox<>(new String[] {
+        cmbAlgorithms = new JComboBox<>(new String[]{
             "MazeSolverBFS",
             "MazeSolverDFS",
             "MazeSolverRecursivo",
@@ -90,11 +91,48 @@ public class MazeFrame extends JFrame {
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(lblStatus, BorderLayout.CENTER);
 
-       
+        // BOTÓN DE AYUDA Y MENÚ EMERGENTE
+        btnAyuda = new JButton("Ayuda");
+        JPopupMenu ayudaMenu = new JPopupMenu();
+        JMenuItem acercaDeItem = new JMenuItem("Acerca de");
+        ayudaMenu.add(acercaDeItem);
+
+        btnAyuda.addActionListener(e -> {
+            ayudaMenu.show(btnAyuda, 0, btnAyuda.getHeight());
+        });
+
+        acercaDeItem.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this,
+                "👨‍💻 Desarrollador 1:\n" +
+                "Nombre: Mateo Namicela\n" +
+                "Correo: mnamicela@est.ups.edu.ec\n\n" +
+
+                "👩‍💻 Desarrollador 2:\n" +
+                "Nombre: Alexander Beltrán\n" +
+                "Correo: mbeltranc1@est.ups.edu.ec\n\n" +
+
+                "👨‍💻 Desarrollador 3:\n" +
+                "Nombre: Dennis Peñaranda\n" +
+                "Correo: dpenaranda@est.ups.edu.ec\n\n" +
+
+                "👩‍💻 Desarrollador 4:\n" +
+                "Nombre: Jose Avecillas\n" +
+                "Correo: javecillasc1@est.ups.edu.ec\n\n" +
+
+                "📌 Proyecto: Resolución de Laberintos - 2025",
+                "Acerca de", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        // Panel derecho del status para ubicar el botón
+        JPanel ayudaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        btnAyuda.setPreferredSize(new Dimension(80, 25));
+        ayudaPanel.add(btnAyuda);
+        statusPanel.add(ayudaPanel, BorderLayout.EAST);
+
+        // Armado final
         controlsPanel.add(topControls);
         controlsPanel.add(editModePanel);
         controlsPanel.add(bottomControls);
-
 
         add(mazePanel, BorderLayout.CENTER);
         add(controlsPanel, BorderLayout.NORTH);
@@ -141,7 +179,7 @@ public class MazeFrame extends JFrame {
         btnViewResults.addActionListener(listener);
     }
 
-    public void setGuardarButtonListener(ActionListener listener) { // <-- NUEVO
+    public void setGuardarButtonListener(ActionListener listener) {
         btnGuardar.addActionListener(listener);
     }
 
