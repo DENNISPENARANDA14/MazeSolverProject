@@ -76,7 +76,6 @@ public class MazeController implements MazePanel.MazePanelClickListener {
     private void setupListeners() {
         view.setGenerateMazeButtonListener(e -> generateNewMaze(view.getNumRows(), view.getNumCols()));
         view.setSolveMazeButtonListener(e -> solveMaze(false));
-        view.setVisualizeStepByStepButtonListener(e -> solveMaze(true));
         view.setClearResultsButtonListener(e -> clearResults());
         view.setViewResultsButtonListener(e -> viewResults());
         view.getMazePanel().setMazePanelClickListener(this);

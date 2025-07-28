@@ -9,7 +9,6 @@ public class MazeFrame extends JFrame {
     private MazePanel mazePanel;
     private JButton btnGenerateMaze;
     private JButton btnSolveMaze;
-    private JButton btnVisualizeStepByStep;
     private JButton btnClearResults;
     private JButton btnViewResults;
     private JButton btnGuardar; 
@@ -41,14 +40,12 @@ public class MazeFrame extends JFrame {
         JPanel topControls = new JPanel();
         btnGenerateMaze = new JButton("Generar Laberinto");
         btnSolveMaze = new JButton("Resolver Rápido");
-        btnVisualizeStepByStep = new JButton("Visualizar Paso a Paso");
         btnClearResults = new JButton("Limpiar Resultados");
         btnViewResults = new JButton("Ver Resultados");
         btnGuardar = new JButton("Guardar Resultados"); 
 
         topControls.add(btnGenerateMaze);
         topControls.add(btnSolveMaze);
-        topControls.add(btnVisualizeStepByStep);
         topControls.add(btnClearResults);
         topControls.add(btnViewResults);
         topControls.add(btnGuardar); 
@@ -108,8 +105,6 @@ public class MazeFrame extends JFrame {
         setVisible(true);
     }
 
-    // Getters para que el controlador acceda
-
     public MazePanel getMazePanel() {
         return mazePanel;
     }
@@ -130,18 +125,12 @@ public class MazeFrame extends JFrame {
         return (String) cmbAlgorithms.getSelectedItem();
     }
 
-    // Setters para listeners, que el controlador usará
-
     public void setGenerateMazeButtonListener(ActionListener listener) {
         btnGenerateMaze.addActionListener(listener);
     }
 
     public void setSolveMazeButtonListener(ActionListener listener) {
         btnSolveMaze.addActionListener(listener);
-    }
-
-    public void setVisualizeStepByStepButtonListener(ActionListener listener) {
-        btnVisualizeStepByStep.addActionListener(listener);
     }
 
     public void setClearResultsButtonListener(ActionListener listener) {
@@ -175,7 +164,6 @@ public class MazeFrame extends JFrame {
     public void setButtonsEnabled(boolean enabled) {
         btnGenerateMaze.setEnabled(enabled);
         btnSolveMaze.setEnabled(enabled);
-        btnVisualizeStepByStep.setEnabled(enabled);
         btnClearResults.setEnabled(enabled);
         btnViewResults.setEnabled(enabled);
         btnGuardar.setEnabled(enabled);
