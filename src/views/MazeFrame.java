@@ -12,6 +12,7 @@ public class MazeFrame extends JFrame {
     private JButton btnVisualizeStepByStep;
     private JButton btnClearResults;
     private JButton btnViewResults;
+    private JButton btnGuardar; 
 
     private JButton btnStartMode;
     private JButton btnEndMode;
@@ -31,26 +32,27 @@ public class MazeFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Maze panel default size 20x20
+        
         mazePanel = new MazePanel(20, 20);
 
         JPanel controlsPanel = new JPanel();
         controlsPanel.setLayout(new GridLayout(3, 1));
 
-        // Panel botones de generación y resolución
         JPanel topControls = new JPanel();
         btnGenerateMaze = new JButton("Generar Laberinto");
         btnSolveMaze = new JButton("Resolver Rápido");
         btnVisualizeStepByStep = new JButton("Visualizar Paso a Paso");
         btnClearResults = new JButton("Limpiar Resultados");
         btnViewResults = new JButton("Ver Resultados");
+        btnGuardar = new JButton("Guardar Resultados"); 
+
         topControls.add(btnGenerateMaze);
         topControls.add(btnSolveMaze);
         topControls.add(btnVisualizeStepByStep);
         topControls.add(btnClearResults);
         topControls.add(btnViewResults);
+        topControls.add(btnGuardar); 
 
-        // Panel de modos de edición
         JPanel editModePanel = new JPanel();
         btnStartMode = new JButton("Colocar Inicio");
         btnEndMode = new JButton("Colocar Fin");
@@ -60,8 +62,8 @@ public class MazeFrame extends JFrame {
         editModePanel.add(btnEndMode);
         editModePanel.add(btnWallMode);
         editModePanel.add(btnEraseMode);
+        
 
-        // Panel configuración y selección algoritmo
         JPanel bottomControls = new JPanel();
         bottomControls.add(new JLabel("Filas:"));
         spinnerRows = new JSpinner(new SpinnerNumberModel(20, 5, 100, 1));
@@ -91,10 +93,11 @@ public class MazeFrame extends JFrame {
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(lblStatus, BorderLayout.CENTER);
 
-        // Agregar paneles a controles
+       
         controlsPanel.add(topControls);
         controlsPanel.add(editModePanel);
         controlsPanel.add(bottomControls);
+
 
         add(mazePanel, BorderLayout.CENTER);
         add(controlsPanel, BorderLayout.NORTH);
@@ -149,6 +152,10 @@ public class MazeFrame extends JFrame {
         btnViewResults.addActionListener(listener);
     }
 
+    public void setGuardarButtonListener(ActionListener listener) { // <-- NUEVO
+        btnGuardar.addActionListener(listener);
+    }
+
     public void setStartModeButtonListener(ActionListener listener) {
         btnStartMode.addActionListener(listener);
     }
@@ -171,6 +178,7 @@ public class MazeFrame extends JFrame {
         btnVisualizeStepByStep.setEnabled(enabled);
         btnClearResults.setEnabled(enabled);
         btnViewResults.setEnabled(enabled);
+        btnGuardar.setEnabled(enabled);
         btnStartMode.setEnabled(enabled);
         btnEndMode.setEnabled(enabled);
         btnWallMode.setEnabled(enabled);

@@ -20,13 +20,21 @@ import solver.solverImpl.MazeSolverDFSCompleto;
 // Si NO quieres usar MazeSolverRecursivoCompletoBT, esta línea debe estar comentada o eliminada:
 // import solver.solverImpl.MazeSolverRecursivoCompletoBT;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class MazeController implements MazePanel.MazePanelClickListener {
     private MazeFrame view;
@@ -39,15 +47,21 @@ public class MazeController implements MazePanel.MazePanelClickListener {
     private MazeFrame.EditMode currentEditMode;
 
     public MazeController(MazeFrame view) {
-        this.view = view;
-        this.resultDAO = new AlgorithmResultDAOFile();
-        this.solvers = new HashMap<>();
-        initializeSolvers();
+    this.view = view;
+    this.resultDAO = new AlgorithmResultDAOFile();
+    this.solvers = new HashMap<>();
+    initializeSolvers();
 
-        setupListeners();
-        this.currentEditMode = MazeFrame.EditMode.NONE;
-        generateNewMaze(view.getNumRows(), view.getNumCols());
-    }
+    // Configurar todos los listeners de los botones
+    setupListeners();
+
+    // Listener adicional del botón Guardar
+    view.setGuardarButtonListener(e -> guardarResultados());
+
+    // Estado inicial
+    this.currentEditMode = MazeFrame.EditMode.NONE;
+    generateNewMaze(view.getNumRows(), view.getNumCols());
+}
 
     private void initializeSolvers() {
         solvers.put("MazeSolverBFS", new MazeSolverBFS());
@@ -56,7 +70,6 @@ public class MazeController implements MazePanel.MazePanelClickListener {
         solvers.put("MazeSolverDFSCompleto", new MazeSolverDFSCompleto());
         solvers.put("MazeSolverRecursivoCompleto", new MazeSolverRecursivoCompleto());
         solvers.put("MazeSolverRecursivoCompletoBT", new MazeSolverRecursivoCompletoBT());
-
         // solvers.put("MazeSolverRecursivoCompletoBT", new MazeSolverRecursivoCompletoBT());
     }
 
@@ -320,23 +333,200 @@ public class MazeController implements MazePanel.MazePanelClickListener {
     }
 
     private void clearResults() {
-        int confirm = view.showMessage("¿Estás seguro de que quieres borrar todos los resultados?",
-                                         "Confirmar", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(
+                view,
+                "¿Estás seguro de que quieres borrar todos los resultados?",
+                "Confirmar",
+                JOptionPane.YES_NO_OPTION
+        );
+
         if (confirm == JOptionPane.YES_OPTION) {
             resultDAO.clearAllResults();
             view.updateStatus("Resultados guardados han sido limpiados.");
+            view.showMessage("Todos los resultados han sido borrados.", "Información", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
+    
+    private BufferedImage generarGraficaImagen(List<AlgorithmResult> results) {
+        int width = 800;
+        int height = 600;
+        int margin = 50;
+
+        // Crear imagen vacía
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+
+        // Fondo blanco
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, width, height);
+
+        // Título
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 24));
+        g.drawString("Tiempos de Ejecución (ms)", margin, margin - 10);
+
+        // Ejes
+        int axisX = margin;
+        int axisY = height - margin;
+        int chartWidth = width - 2 * margin;
+        int chartHeight = height - 2 * margin;
+
+        g.setStroke(new BasicStroke(2));
+        g.drawLine(axisX, axisY, axisX + chartWidth, axisY); // Eje X
+        g.drawLine(axisX, axisY, axisX, axisY - chartHeight); // Eje Y
+
+        // Calcular valor máximo
+        long maxValue = 1;
+        for (AlgorithmResult r : results) {
+            long tiempo = obtenerTiempo(r);
+            if (tiempo > maxValue) maxValue = tiempo;
+        }
+
+        // Dibujar barras
+        int barWidth = chartWidth / results.size() - 20;
+        int x = axisX + 10;
+        g.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        for (AlgorithmResult r : results) {
+            long tiempo = obtenerTiempo(r);
+            int barHeight = (int) ((tiempo * 1.0 / maxValue) * (chartHeight - 20));
+
+            // Barra
+            g.setColor(Color.BLUE);
+            g.fillRect(x, axisY - barHeight, barWidth, barHeight);
+
+            // Etiqueta algoritmo
+            g.setColor(Color.BLACK);
+            g.drawString(r.getAlgorithmName(), x, axisY + 20);
+
+            // Etiqueta valor
+            g.drawString(tiempo + " ms", x, axisY - barHeight - 5);
+
+            x += barWidth + 20;
+        }
+
+        g.dispose();
+        return image;
+    }
+
+    /**
+     * Muestra el gráfico en pantalla y lo guarda como PNG
+     */
+    private void resultadosGraficaG(List<AlgorithmResult> results) {
+        if (results.isEmpty()) return;
+
+        try {
+            BufferedImage image = generarGraficaImagen(results);
+
+            // Guardar imagen en raíz del proyecto
+            File out = new File("resultados_tiempo.png");
+            ImageIO.write(image, "png", out);
+
+            // Mostrar imagen en JOptionPane
+            ImageIcon icon = new ImageIcon(image);
+            JLabel label = new JLabel(icon);
+            JOptionPane.showMessageDialog(null, label, "Gráfico de Resultados", JOptionPane.PLAIN_MESSAGE);
+
+            view.showMessage("Gráfico generado en: " + out.getAbsolutePath(),
+                    "Imagen Creada", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            view.showMessage("Error generando imagen: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Obtiene el tiempo de ejecución de AlgorithmResult de forma compatible
+     */
+    private long obtenerTiempo(AlgorithmResult r) {
+        try {
+            return r.getTimeTakenMillis();
+        } catch (NoSuchMethodError | Exception e1) {
+            try {
+                return (long) r.getClass().getMethod("getExecutionTimeMillis").invoke(r);
+            } catch (Exception e2) {
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Visualizar resultados y gráfico
+     */
     private void viewResults() {
         List<AlgorithmResult> allResults = resultDAO.getAllResults();
         if (allResults.isEmpty()) {
-            view.showMessage("No hay resultados guardados para mostrar.", "Resultados Vacíos", JOptionPane.INFORMATION_MESSAGE);
+            view.showMessage("No hay resultados guardados para mostrar.",
+                    "Resultados Vacíos", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        
+
         ResultadosDialog resultsDialog = new ResultadosDialog(view, allResults);
         resultsDialog.setVisible(true);
-        view.updateStatus("Mostrando resultados guardados.");
+
+        resultadosGraficaG(allResults);
+
+        view.updateStatus("Mostrando resultados y generando gráfico.");
     }
+
+    /**
+     * Guardar imagen y tabla en carpeta /resultados
+     */
+    private void guardarResultados() {
+        List<AlgorithmResult> results = resultDAO.getAllResults();
+        if (results.isEmpty()) {
+            view.showMessage("No hay resultados para guardar.", "Vacío", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        BufferedImage image = generarGraficaImagen(results);
+        guardarImagen(image);
+        guardarTablaResultados(results);
+    }
+
+    private File crearCarpetaReportes() {
+        File carpeta = new File("resultados");
+        if (!carpeta.exists()) carpeta.mkdir();
+        return carpeta;
+    }
+
+    private void guardarImagen(BufferedImage image) {
+        try {
+            File carpeta = crearCarpetaReportes();
+            File out = new File(carpeta, "grafico_tiempo.png");
+            ImageIO.write(image, "png", out);
+            view.showMessage("Imagen guardada en: " + out.getAbsolutePath(),
+                    "Guardado", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            view.showMessage("Error guardando imagen: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void guardarTablaResultados(List<AlgorithmResult> results) {
+        try {
+            File carpeta = crearCarpetaReportes();
+            File out = new File(carpeta, "resultados.csv");
+            try (PrintWriter pw = new PrintWriter(out)) {
+                pw.println("Algoritmo, Longitud Camino, Tiempo(ms), Tamaño Laberinto");
+                for (AlgorithmResult r : results) {
+                    pw.println(r.getAlgorithmName() + "," +
+                            r.getPathLength() + "," +
+                            obtenerTiempo(r) + "," +
+                            r.getMazeSize());
+                }
+            }
+            view.showMessage("Resultados guardados en: " + out.getAbsolutePath(),
+                    "Guardado", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            view.showMessage("Error guardando resultados: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    
+
 }
