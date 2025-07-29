@@ -51,7 +51,7 @@ Se implementaron los siguientes algoritmos de búsqueda y resolución de laberin
 
 ### Diagrama UML
 
-
+![DiagramaUML](DIAGRAMAUML.png)
 
 ### Capturas de la Interfaz
 
